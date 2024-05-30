@@ -1,0 +1,6 @@
+16:19:38 **** Incremental Build of configuration Debug_with_Cross GCC for project A11_HelloWorld ****
+make all 
+make: Nothing to be done for 'all'.
+
+16:19:40 Build Finished. 0 errors, 0 warnings. (took 2s.0ms)
+

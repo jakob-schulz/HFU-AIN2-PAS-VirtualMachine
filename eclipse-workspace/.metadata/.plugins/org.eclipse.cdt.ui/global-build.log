@@ -1,0 +1,67 @@
+10:41:19 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+Building file: ../A13_ForkWithSignals.c
+Invoking: GCC C Compiler
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"A13_ForkWithSignals.d" -MT"A13_ForkWithSignals.o" -o "A13_ForkWithSignals.o" "../A13_ForkWithSignals.c"
+../A13_ForkWithSignals.c: In function ‘doChild’:
+../A13_ForkWithSignals.c:52:1: warning: control reaches end of non-void function [-Wreturn-type]
+   52 | }
+      | ^
+../A13_ForkWithSignals.c: In function ‘doParent’:
+../A13_ForkWithSignals.c:86:1: warning: control reaches end of non-void function [-Wreturn-type]
+   86 | }
+      | ^
+Finished building: ../A13_ForkWithSignals.c
+ 
+Building target: A13_ForkWithSignals
+Invoking: GCC C Linker
+gcc  -o "A13_ForkWithSignals"  ./A13_ForkWithSignals.o   
+Finished building target: A13_ForkWithSignals
+ 
+10:41:23 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:46:29 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+Building file: ../A13_ForkWithSignals.c
+Invoking: GCC C Compiler
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"A13_ForkWithSignals.d" -MT"A13_ForkWithSignals.o" -o "A13_ForkWithSignals.o" "../A13_ForkWithSignals.c"
+../A13_ForkWithSignals.c: In function ‘doChild’:
+../A13_ForkWithSignals.c:53:1: warning: control reaches end of non-void function [-Wreturn-type]
+   53 | }
+      | ^
+../A13_ForkWithSignals.c: In function ‘doParent’:
+../A13_ForkWithSignals.c:87:1: warning: control reaches end of non-void function [-Wreturn-type]
+   87 | }
+      | ^
+Finished building: ../A13_ForkWithSignals.c
+ 
+Building target: A13_ForkWithSignals
+Invoking: GCC C Linker
+gcc  -o "A13_ForkWithSignals"  ./A13_ForkWithSignals.o   
+Finished building target: A13_ForkWithSignals
+ 
+10:47:05 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:47:07 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:48:09 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:55:43 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:56:17 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:57:18 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+10:58:39 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.
+11:01:08 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_ForkWithSignals ****
+make all 
+make: Nothing to be done for 'all'.

@@ -1,0 +1,15 @@
+10:31:47 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_Signal ****
+make all 
+Building file: ../A13_Signal.c
+Invoking: GCC C Compiler
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"A13_Signal.d" -MT"A13_Signal.o" -o "A13_Signal.o" "../A13_Signal.c"
+Finished building: ../A13_Signal.c
+ 
+Building target: A13_Signal
+Invoking: GCC C Linker
+gcc  -o "A13_Signal"  ./A13_Signal.o   
+Finished building target: A13_Signal
+ 
+
+10:31:49 Build Finished. 0 errors, 0 warnings. (took 2s.455ms)
+

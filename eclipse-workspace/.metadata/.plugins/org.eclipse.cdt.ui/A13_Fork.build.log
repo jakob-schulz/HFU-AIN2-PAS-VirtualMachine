@@ -1,0 +1,6 @@
+17:41:34 **** Incremental Build of configuration Debug_with_Cross GCC for project A13_Fork ****
+make all 
+make: Nothing to be done for 'all'.
+
+17:41:37 Build Finished. 0 errors, 0 warnings. (took 2s.460ms)
+

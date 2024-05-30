@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.cdt.launch.remoteApplicationLaunchType">
+    <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
+    <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="/home/hfu/eclipse-workspace/A13_Fork02/Debug_with_Cross GCC/A13_Fork02"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="A13_Fork02"/>
+    <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="cdt.managedbuild.config.gnu.cross.exe.debug.577030751"/>
+    <stringAttribute key="org.eclipse.debug.core.ATTR_PRERUN_CMDS" value="chmod 777 /tmp/remotetest/A13_Fork02"/>
+    <booleanAttribute key="org.eclipse.debug.core.ATTR_SKIP_DOWNLOAD_TO_TARGET" value="false"/>
+    <stringAttribute key="org.eclipse.debug.core.ATTR_TARGET_PATH" value="/tmp/remotetest/A13_Fork02"/>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/A13_Fork02"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
+    </listAttribute>
+    <stringAttribute key="org.eclipse.debug.core.REMOTE_TCP" value="Remote Host"/>
+    <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
+</launchConfiguration>

@@ -1,0 +1,6 @@
+18:37:51 **** Incremental Build of configuration Debug_with_Linux GCC for project A13_Fork02 ****
+make all 
+make: Nothing to be done for 'all'.
+
+18:37:54 Build Finished. 0 errors, 0 warnings. (took 2s.507ms)
+
