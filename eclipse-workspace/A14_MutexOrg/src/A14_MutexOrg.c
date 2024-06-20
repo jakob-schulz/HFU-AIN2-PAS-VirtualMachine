@@ -75,6 +75,5 @@ void *philoWork(int n)
 	pthread_mutex_unlock(&chopstick[n]);
 	pthread_mutex_unlock(&chopstick[(n+1)%5]);
 	printf("\nPhilosopher %d Finished eating ",n + 1);
-
 	return 0;
 }
