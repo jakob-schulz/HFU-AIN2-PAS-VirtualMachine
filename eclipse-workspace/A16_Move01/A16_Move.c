@@ -67,6 +67,8 @@ unsigned char *fbp = 0;			// Adresse unseres Framebuffer-Speichers
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
 
+unsigned char *sbp = 0; //Adresse des Shadowbuffer-Speichers.
+
 // Je nach Farbmodell brauchen wir Funktionen, die ein Pixel
 // an die "richtige" Stelle "schreiben"
 
@@ -141,7 +143,6 @@ void put_pixel_BGRA32(int x, int y, int b, int g, int r, float a) {
 
 }
 
-
 void drawShape(enum Shape shape, int x_pos, int y_pos, int x_size, int y_size,
 		int b, int g, int r, float a) /*drawShape zusaetzlich um Attribut shape erweitert, damit man festlegen kann, welche Figur gezeichnet werden muss*/{
 
@@ -175,7 +176,7 @@ void drawShape(enum Shape shape, int x_pos, int y_pos, int x_size, int y_size,
 					x < xstartpos + currentwidth / 2; x++) {
 				switch (vinfo.bits_per_pixel) {
 				case 16:
-					put_pixel_RGB565(x, y, r, g,b, a);
+					put_pixel_RGB565(x, y, r, g, b, a);
 					break;
 				case 24:
 					put_pixel_RGB24(x, y, r, g, b, a);
@@ -209,90 +210,177 @@ void draw(int x, int y, int r, int g, int b, float a) {
 	}
 }
 
-int main(int argc, char *argv[]) {
-	int fbfd = 0;			// File-Handle für Framebuffer-Device
-	struct fb_var_screeninfo orig_vinfo;
-	long int screensize = 0;
+void save_pixel_RGB565(int x, int y) {
+	unsigned int pix_offset = x * 2 + y * finfo.line_length;
 
-	// Open the Framebuffer pseudo-file for reading and writing
-	fbfd = open("/dev/fb0", O_RDWR);
-	if (!fbfd) {
-		printf("Error: cannot open framebuffer device.\n");
-		return (1);
-	}
-	// Get variable screen information
-	if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
-		printf("Error reading variable information.\n");
-	}
-	printf("Original %dx%d, %dbpp\n", vinfo.xres, vinfo.yres,
-			vinfo.bits_per_pixel);
-	// Store for reset (copy vinfo to vinfo_orig)
-	memcpy(&orig_vinfo, &vinfo, sizeof(struct fb_var_screeninfo));
-
-	// Get fixed screen information
-	if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
-		printf("Error reading fixed information.\n");
-	}
-
-	// Jetzt Framebuffer-Dev mit User-Memory "verknüpfen" (map)
-
-	// Wie groß muß der Speicher sein (in Byte)?
-	screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
-
-	//"Verknuepfen":
-	fbp = (unsigned char*) mmap(0, screensize,
-	PROT_READ | PROT_WRITE,
-	MAP_SHARED, fbfd, 0);
-
-	if (fbp == (unsigned char*) -1) {
-		printf("Failed to mmap.\n");
-	} else {
-		for (int yLoop = 0; yLoop < vinfo.yres - 192; yLoop++) { //Die 192 verstehe ich nicht, eigentlich dürfte ohne -192 kein Fehler kommen
-			for (int xLoop = 0; xLoop < vinfo.xres; xLoop++) {
-				int r = (xLoop * 4) % 256;
-				int g = (xLoop * 4) % 256;
-				int b = (xLoop * 4) % 256;
-
-				draw(xLoop, yLoop, r, g, b, 1);
-			}
-		}
-		for (int i = 0; i < 5; i++) {
-			drawShape(Rectangle, 50 + 50 * i, 50 + 50 * i, 70, 30, 255, 0, 255,
-					0.5);
-		}
-		for (int i = 0; i < 5; i++) {
-			drawShape(Triangle, 300 + 50 * i, 50 + 50 * i, 50, 50, 0, 136, 0,
-					0.5);
-		}
-		sleep(5);
-	}
-	// cleanup, d.h. Original-Werte wieder restaurieren
-	munmap(fbp, screensize);
-	if (ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_vinfo)) {
-		printf("Error re-setting variable information.\n");
-	}
-	close(fbfd);
-	return 0;
+	//r,g,b wert aus dem Framebuffer an der entsprechenden Stelle wird and den r,g,b Wert an der entsprechenden Stelle in den Shadowbuffer geschrieben
+	*((unsigned short*) (sbp + pix_offset)) = *((unsigned short*) (fbp + pix_offset));
 }
 
-/*if(vinfo.bits_per_pixel == 16)
- {
- int color = (xLoop * 4) % 256;
+void restore_pixel_RGB565(int x, int y) {
+	unsigned int pix_offset = x * 2+ y * finfo.line_length;
 
- // Umwandeln in RGB565
- unsigned int r = (color >> 3) & 0x1F; // 5 Bits
- unsigned int g = (color >> 2) & 0x3F; // 6 Bits
- unsigned int b = (color >> 3) & 0x1F; // 5 Bits
+	//r,g,b wert aus dem Shadowbuffer an der entsprechenden Stelle wird and den r,g,b Wert an der entsprechenden Stelle in den Framebuffer geschrieben
+	*((unsigned short*) (fbp + pix_offset)) = *((unsigned short*) (sbp + pix_offset));
 
- unsigned rgb565 = (r << 11) | (g << 5) | b;
+}
 
- // Platzierung im Framebuffer
- unsigned int* pixel = (unsigned int*) (fbp + yLoop * finfo.line_length + xLoop * 2);
- *pixel = rgb565;
- }
- else
- {
- color = (xLoop * 4) % 256;
- color = (color << 16) + (color << 8) + color;
- *((unsigned int*) (fbp + yLoop * finfo.line_length + xLoop * 4)) = color;
- }*/
+void save_pixel_RGB24(int x, int y) {
+	unsigned int pix_offset = x * 3 + y * finfo.line_length;
+
+	//r,g,b wert aus dem Framebuffer an der entsprechenden Stelle wird and den r,g,b Wert an der entsprechenden Stelle in den Shadowbuffer geschrieben
+	*((char*) (sbp + pix_offset)) = *((char*) (fbp + pix_offset));
+	*((char*) (sbp + pix_offset + 1)) = *((char*) (fbp + pix_offset + 1));
+	*((char*) (sbp + pix_offset + 2)) = *((char*) (fbp + pix_offset + 2));
+}
+
+void restore_pixel_RGB24(int x, int y) {
+	unsigned int pix_offset = x * 3+ y * finfo.line_length;
+
+	//r,g,b wert aus dem Shadowbuffer an der entsprechenden Stelle wird and den r,g,b Wert an der entsprechenden Stelle in den Framebuffer geschrieben
+	*((char*) (fbp + pix_offset)) = *((char*) (sbp + pix_offset));
+	*((char*) (fbp + pix_offset + 1)) = *((char*) (sbp + pix_offset + 1));
+	*((char*) (fbp + pix_offset + 2)) = *((char*) (sbp + pix_offset + 2));
+}
+
+
+
+void save_pixel_BGRA32(int x, int y) {
+	unsigned int pix_offset = x * 4 + y * finfo.line_length;
+
+	//b, g, r wert aus dem Framebuffer an der entsprechenden Stelle wird and den b, g, r Wert an der entsprechenden Stelle in den Shadowbuffer geschrieben
+	*((char*) (sbp + pix_offset)) = *((char*) (fbp + pix_offset));
+	*((char*) (sbp + pix_offset + 1)) = *((char*) (fbp + pix_offset + 1));
+	*((char*) (sbp + pix_offset + 2)) = *((char*) (fbp + pix_offset + 2));
+}
+
+void restore_pixel_BGRA32(int x, int y) {
+	unsigned int pix_offset = x * 4 + y * finfo.line_length;
+
+	//b, g, r wert aus dem Shadowbuffer an der entsprechenden Stelle wird and den b, g, r Wert an der entsprechenden Stelle in den Framebuffer geschrieben
+	*((char*) (fbp + pix_offset)) = *((char*) (sbp + pix_offset));
+	*((char*) (fbp + pix_offset + 1)) = *((char*) (sbp + pix_offset + 1));
+	*((char*) (fbp + pix_offset + 2)) = *((char*) (sbp + pix_offset + 2));
+}
+
+void saveShape(enum Shape shape, int x_pos, int y_pos, int x_size, int y_size) {
+	if (shape == Rectangle) {
+		for (int y = y_pos; y < y_pos + y_size; y++) {
+			for (int x = x_pos; x < x_pos + x_size; x++) {
+				switch (vinfo.bits_per_pixel) {
+				case 16:
+					save_pixel_RGB565(x, y);
+					break;
+				case 24:
+					save_pixel_RGB24(x, y);
+					break;
+				case 32:
+					save_pixel_BGRA32(x, y);
+					break;
+				default:
+					printf("Fehlendes Farbmodell: %d\n", vinfo.bits_per_pixel);
+					exit(0);
+				}
+			}
+		}
+	}
+}
+
+void restoreShape(enum Shape shape, int x_pos, int y_pos, int x_size, int y_size) {
+	if (shape == Rectangle) {
+			for (int y = y_pos; y < y_pos + y_size; y++) {
+				for (int x = x_pos; x < x_pos + x_size; x++) {
+					switch (vinfo.bits_per_pixel) {
+					case 16:
+						restore_pixel_RGB565(x, y);
+						break;
+					case 24:
+						restore_pixel_RGB24(x, y);
+						break;
+					case 32:
+						restore_pixel_BGRA32(x, y);
+						break;
+					default:
+						printf("Fehlendes Farbmodell: %d\n", vinfo.bits_per_pixel);
+						exit(0);
+					}
+				}
+			}
+		}
+}
+
+	int main(int argc, char *argv[]) {
+		int fbfd = 0;			// File-Handle für Framebuffer-Device
+		struct fb_var_screeninfo orig_vinfo;
+		long int screensize = 0;
+
+		// Open the Framebuffer pseudo-file for reading and writing
+		fbfd = open("/dev/fb0", O_RDWR);
+		if (!fbfd) {
+			printf("Error: cannot open framebuffer device.\n");
+			return (1);
+		}
+		// Get variable screen information
+		if (ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
+			printf("Error reading variable information.\n");
+		}
+		printf("Original %dx%d, %dbpp\n", vinfo.xres, vinfo.yres,
+				vinfo.bits_per_pixel);
+		// Store for reset (copy vinfo to vinfo_orig)
+		memcpy(&orig_vinfo, &vinfo, sizeof(struct fb_var_screeninfo));
+
+		// Get fixed screen information
+		if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
+			printf("Error reading fixed information.\n");
+		}
+
+		// Jetzt Framebuffer-Dev mit User-Memory "verknüpfen" (map)
+
+		// Wie groß muß der Speicher sein (in Byte)?
+		screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
+
+		//"Verknuepfen":
+		fbp = (unsigned char*) mmap(0, screensize,
+		PROT_READ | PROT_WRITE,
+		MAP_SHARED, fbfd, 0);
+
+		//Shadowbuffer in der groesse des Framebuffers anlegen
+		sbp = (unsigned char*) malloc(screensize);
+
+		if (fbp == (unsigned char*) -1) {
+			printf("Failed to mmap.\n");
+		} else {
+			for (int yLoop = 0; yLoop < vinfo.yres - 192; yLoop++) { //Die 192 verstehe ich nicht, eigentlich dürfte ohne -192 kein Fehler kommen
+				for (int xLoop = 0; xLoop < vinfo.xres; xLoop++) {
+					int r = (xLoop * 4) % 256;
+					int g = (xLoop * 4) % 256;
+					int b = (xLoop * 4) % 256;
+
+					draw(xLoop, yLoop, r, g, b, 1);
+				}
+			}
+			int startposition = 0;
+			int iterations = 12;
+			for (int pos = startposition; pos < iterations; pos++) {
+				if(pos > startposition)
+				{
+					restoreShape(Rectangle, 50 + 50 * (pos -1), 100, 70, 30);
+				}
+				if(pos < iterations)
+				{
+					saveShape(Rectangle, 50 + 50 * pos, 100, 70, 30);
+				}
+				drawShape(Rectangle, 50 + 50 * pos, 100, 70, 30, 255, 0,
+						0, 0.5);
+				usleep(200000);
+			}
+			sleep(5);
+		}
+		// cleanup, d.h. Original-Werte wieder restaurieren
+		munmap(fbp, screensize);
+		if (ioctl(fbfd, FBIOPUT_VSCREENINFO, &orig_vinfo)) {
+			printf("Error re-setting variable information.\n");
+		}
+		close(fbfd);
+		return 0;
+	}
