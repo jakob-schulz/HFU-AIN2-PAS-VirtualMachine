@@ -102,9 +102,9 @@ void put_pixel_RGB565(int x, int y, int r, int g, int b, float a) {
 
 	//Hintergrundwerte der Farben bekommen, fuer Softwareberechnung der Transparenz a:
 	unsigned short c = *((unsigned short*) (fbp + pix_offset));
-	int backgroundB = c * 8;
-	int backgroundG = (c << 5) * 4;
-	int backgroundR = (c << 11) * 8;
+	int backgroundB = (c & 0x1F) * 8;
+	int backgroundG = ((c >> 5) & 0x3F) * 4;
+	int backgroundR = ((c >> 11) & 0x1F) * 8;
 
 	//Berechnen des alpha-blendings:
 	r = (a * r + (1 - a) * backgroundR);
