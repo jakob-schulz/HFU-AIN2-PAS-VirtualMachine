@@ -99,12 +99,13 @@ void put_pixel_RGB24(int x, int y, int r, int g, int b, float a) {
 void put_pixel_RGB565(int x, int y, int r, int g, int b, float a) {
 	//Berechnet den Byteversatz eins Pixels innerhalb des buffer. finfo.line_length gibt die Breite einer Zeile in Bytes an (Kann mehr als nur die tatsächliche Breite der Bilddaten umfassen und moeglicherweise Auffülbytes enthalten).
 	unsigned int pix_offset = x * 2 + y * finfo.line_length;
-
+3
 	//Hintergrundwerte der Farben bekommen, fuer Softwareberechnung der Transparenz a:
 	unsigned short c = *((unsigned short*) (fbp + pix_offset));
+	//Extrahieren der Werte:
 	int backgroundB = (c & 0x1F) * 8;
-	int backgroundG = ((c >> 5) & 0x3F) * 4;
-	int backgroundR = ((c >> 11) & 0x1F) * 8;
+	int backgroundG = ((c >> 5) & 0x3F) * 4;  // ">>5", um die Werte wieder nach rechts zu verschieben
+	int backgroundR = ((c >> 11) & 0x1F) * 8; //nach der Verschiebung nach rechts kann man mit & 0x1F die unteren 5 Bits (binär: 0001 1111) extrahieren
 
 	//Berechnen des alpha-blendings:
 	r = (a * r + (1 - a) * backgroundR);
